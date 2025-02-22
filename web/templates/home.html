@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Travel Assistant</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+        <link rel="stylesheet" href="{% static 'style.css'%}">
+        <link rel="stylesheet" href="{% static 'chatbot.css'%}">
+        
+    </head>
+    <body>
+        <div class="header">
+            <h1>Travel Assistant</h1>
+        </div>
+        <div class="main">
+            <form method="post" class="form" id="form">
+            {% csrf_token %}
+            <div id="input_data" class="row">
+                <span id="latest" onclick="swaplatest(this.id)">
+                    <label for="input" class="basic">Start/Stop</label><input type="text" placeholder="Select location in map" id="start_stop" readonly>
+                </span>
+            </div>
+            <span >
+                <input type="button" id="delete" value="Delete Last Location" onclick="deleteInput()">
+                <input type="button" value="+ Add" style="display: inline-block;" onclick="addInput()">
+                <input type="button" value="Submit" onclick="sendForm()">
+            </span>
+        </form>
+        <div id="map"></div>
+        <div class="chat" id="chat">
+            <div class="card" id="card">
+                <div id="header">
+                  <h1>Chat Section</h1>
+                </div>
+                <div id="message-section">
+                    
+                    </div>
+                <div class="input-section">
+                    <input id="chatinput" name="input" type="text" 
+                    placeholder="Type a message" />
+                    <button class="send" id="send" onclick="submit()">
+                        <div class="circle">&#9654;</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="result">
+        <span>
+            -- Route will be displayed here --
+        </span>
+    </div>
+    
+
+    
+    <script src="{% static 'chats.js' %}"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+    <script>
+        var objDiv = document.getElementById("message-section");
+        objDiv.scrollTop = objDiv.scrollHeight;
+        document.getElementById("chatinput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                document.getElementById("send").click();
+            }
+        });
+
+        var Coordinates = [13.0, 77.0];
+        var map = L.map('map').setView(Coordinates, 7);
+        var markers = [];
+        var routeLayers = [];
+        var vehicleRoutes = {};
+        var marker;
+        
+        function swaplatest(id) {
+            console.log(id);
+            var form = document.getElementById('input_data');
+            var latest = document.getElementById('latest');
+            curr = document.getElementById(id)
+            curr.setAttribute('id', 'latest');
+            latest.setAttribute('id',id);
+            if (curr.children[1].name != '') {
+                map.setView(curr.children[1].name.split(','), 9);
+                if (marker) {
+                    map.removeLayer(marker);
+                }
+                marker = L.marker(curr.children[1].name.split(','))
+                    .addTo(map);
+            }
+        }
+        function addInput() {
+            var form = document.getElementById('input_data');
+            document.getElementById('latest').setAttribute('id','input'+ form.children.length);
+            var span = document.createElement('span');
+            span.setAttribute('id', 'latest');
+            span.setAttribute('onclick', 'swaplatest(this.id)');
+
+            var label = document.createElement('label');
+            label.setAttribute('for', 'input');
+            label.innerHTML = 'Location';
+            label.setAttribute('class', 'basic');
+            var input = document.createElement('input');
+            input.setAttribute('type', 'text');
+            input.setAttribute('placeholder', 'Select location in map');
+            input.setAttribute('id', 'input');
+            input.setAttribute('readonly', 'true');
+
+            span.appendChild(label);
+            span.appendChild(input);
+            form.appendChild(span);
+        }
+        function sendForm() {
+            let chats = document.getElementById("message-section")
+            chats.innerHTML += `
+                <div class="message bot" id="loading">
+                <div id="bot-response" >
+                    loading...
+                </div>
+                </div>
+                `;
+            chats.scrollTop = chats.scrollHeight;
+
+            var form = document.getElementById('input_data');
+            var formdata = new FormData();
+            for (var i = 0; i < form.children.length; i++) {
+                if (form.children[i].children[1].name == '') {
+                    continue;
+                }
+                if (form.children[i].children[1].id == 'start_stop') {
+                    formdata.append("start_stop", form.children[i].children[1].value +','+ form.children[i].children[1].name);
+                } else {
+                    formdata.append("input"+i, form.children[i].children[1].value +','+ form.children[i].children[1].name);
+                }
+            }
+            
+            fetch('/input', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name="csrfmiddlewaretoken"]').value
+                },
+                body: formdata
+            }).then(response => response.json()).then(res => {
+                var result = document.getElementById('result');
+                data = res.data;
+                total = res.total_distance;
+                result.innerHTML = 'Total distance: '+total+' | Route ->   ';
+                for (var val in data) {
+                    var span = document.createElement('label');
+                    span.innerHTML = data[val];
+                    result.appendChild(span);
+                }
+                for (var i = 0; i < result.children.length; i++) {
+                    if (i % 2 == 1) {
+                        result.children[i].setAttribute('class', 'distance');
+                    } else {
+                        result.children[i].setAttribute('class', 'place');
+                    }
+                }
+                routeLayers.forEach(layer => map.removeLayer(layer));
+                routeLayers = [];
+                route = res.instructions;
+                if (route && route.length !== 0) {
+                    routeLayers = drawRoute(route);
+                }
+                if (res.error) {
+                    chat = res.error;
+                } else {
+                    chat = res.chat;
+                }
+                loading = document.getElementById("loading")
+                chats.removeChild(loading)
+                chats.innerHTML += `
+                <div class="message bot">
+                <div id="bot-response" >
+                    ${chat}
+                </div>
+                </div>
+                `;
+                chats.scrollTop = chats.scrollHeight;
+            }).catch(error => {
+                console.error("Error occurred", error);
+                loading = document.getElementById("loading")
+                chats.removeChild(loading)
+                chats.innerHTML += `
+                <div class="message bot">
+                <div id="bot-response" >
+                    Error Occurred.
+                </div>
+                </div>
+                `;
+                chats.scrollTop = chats.scrollHeight;
+            })
+            ;
+        }
+
+        function handleRoute(route) {
+            
+        }
+
+        function deleteInput() {
+            var form = document.getElementById('input_data');
+            var first = form.children[0];
+            if (form.children.length > 1) {
+                if (first.id != 'latest') {
+                    swaplatest(first.id);
+                }
+                form.removeChild(form.children[form.children.length-1]);
+            }
+        }
+
+        function addtolatest(address) {
+            var latest = document.getElementById('latest');
+            latest.children[1].value = address;
+        }
+
+
+        var alertIcon = L.icon({
+            iconUrl: '{% static "red-marker.png" %}',
+            iconSize: [25, 31],
+            iconAnchor: [12, 31],
+            popupAnchor: [1, -24],
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: ' OpenStreetMap'
+        }).addTo(map);
+
+        map.on('click', function(e) {
+            if (marker) {
+                map.removeLayer(marker);
+            }
+            marker = L.marker(e.latlng)
+                .bindPopup('Loading location info...')
+                .addTo(map);
+            marker.openPopup();
+            
+            lat = e.latlng.lat;
+            lng = e.latlng.lng;
+            
+            fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`) 
+            .then(response => response.json())
+            .then(data => {
+                let Name = data.address.suburb || data.address.city || data.address.town || data.address.village || data.address.county || data.address.state || '';
+                inp = document.getElementById('latest').children[1]
+                inp.value = Name;
+                inp.name = lat.toFixed(4)+','+lng.toFixed(4);
+                let cityName = data.address.city || data.address.suburb || data.address.town || data.address.village || data.address.county || data.address.state || '';
+                let address = data.display_name || '';
+                if (address) {
+                    address = address.split(',')
+                    address_link = `<a onclick="addtolatest('${address[0]}')">`+address[0]+'</a>';
+                    for (var i = 1; i < address.length; i++) {
+                        address_link += ', '+`<a onclick="addtolatest('${address[i]}')">`+address[i]+'</a>';
+                    }
+                }
+                marker.setPopupContent(`
+                    <b>${cityName}</b><br>
+                    ${address_link}<br>
+                    Lat: ${lat.toFixed(4)}<br>
+                    Lng: ${lng.toFixed(4)}
+                `);
+                console.log(data.address);
+            })
+            .catch(error => console.error("Error fetching city name", error));
+            console.log(e.latlng);
+        });
+
+        function drawRoute(route) {
+            const layers = [];
+            for (let i = 1; i < route.length; i++) {
+                const point = route[i];
+                if (point.path && point.path.length > 0) {
+                    const pathLayer = L.polyline(point.path.map(p => [p.lat, p.lng]), {
+                        color: '#2196F3',
+                        weight: 4,
+                        opacity: 0.8,
+                    }).addTo(map);
+                    
+                    layers.push(pathLayer);
+                }
+            }
+            // Draw markers
+            route.forEach(point => {
+                const marker = L.marker([point.lat, point.lng], {
+                    icon: alertIcon,
+                });
+                marker.addTo(map);
+                layers.push(marker);
+            });
+
+            if (layers.length > 0) {
+                const group = new L.featureGroup(layers);
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
+            return layers;
+        }
+    </script>
+</body>
+</html>

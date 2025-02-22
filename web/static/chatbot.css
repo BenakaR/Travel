@@ -1,0 +1,121 @@
+
+.card {
+  height: 95%;
+  min-height: 95%;
+  width: 95%;
+  bottom: 0;
+  right: 0;
+  margin: 10px 10px;
+  background-color: white;
+  border: 0.1vh solid #032912;
+}
+body .card h1{
+  margin: 0%;
+  padding: 0%;
+}
+body .card #header {
+  height: 7vh;
+  background: #032912;
+  padding: 0;
+  color: white;
+  font-size: 1.5vh;
+  text-align: center;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+ .card #header h1 {
+  color: #fff;
+  font-size: 4vh;
+  font-family: "Open Sans", sans;
+  padding: 1vh;
+}
+.card #message-section {
+  height: 425px;
+  overflow: auto;
+}
+
+ .card #message-section .bot {
+  text-align: left;
+  position: relative;
+  bottom: 0;
+  margin: 2vh;
+  border-left: 0.7vh solid rgb(48, 176, 211);
+  border-radius: 1.5vh 1.5vh 1.5vh 1.5vh;
+  background-color: #c5ffc4;
+  left: 3px;
+}
+
+ .card #message-section .user {
+  position: relative;
+  bottom: 0;
+  margin: 2vh;
+  border-radius: 1.5vh 0vh 1.5vh 1.8vh;
+  background-color: #032912;
+  float: right;
+  right: 3px;
+}
+
+ .card #message-section .user  #user-response {
+  color: #fff;
+}
+ .card #message-section .message {
+  color: #000;
+  clear: both;
+  line-height: 2.5vh;
+  font-family: "Open Sans", sans;
+  letter-spacing: 0.4px;
+  font-size: 1.8vh;
+  padding: 8px;
+  position: relative;
+  margin: 8px 0;
+  max-width: 70%;
+  word-wrap: break-word;
+  z-index: 2;
+}
+ .card .input-section {
+  z-index: 1;
+  padding: 0 10px;
+  display: flex;
+  justify-content: flex-start ;
+  overflow: auto;
+  height: 6vh;
+  width: 95%;
+}
+
+ .card .input-section input {
+  color: #032912;
+  outline: none;
+  height: 5vh;
+  font-size: 2.2vh;
+  width: inherit;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  border-bottom: solid #032912 0.1vw;
+}
+body .card .send {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  flex: 0 0 auto;
+  margin-left: 0.8vw;
+  padding: 0;
+  position: relative;
+  outline: none;
+}
+ .card .send .circle {
+  position: relative;
+  width: 5vh;
+  height: 5vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #00d50e;
+  border-radius: 100%;
+}
+ .card .send .circle i {
+  font-size: 3vh;
+  
+}
