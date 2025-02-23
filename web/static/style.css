@@ -39,8 +39,10 @@ body {
     padding: auto;
     background: #c5ffc4;
     display: flex;
+    flex-wrap: wrap;
 }
 .form {
+    order: 1;
     width: 25%;
     margin: 5px;
     min-height: 550px;
@@ -59,6 +61,7 @@ body {
     }
 }
 .chat {
+    order: 3;
     width: 25%;
     margin: 5px;
     min-height: 550px;
@@ -93,13 +96,14 @@ body {
     }
 }
 #map {
+    order: 2;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     min-height: 550px;
     height: max-content;
-    width: 50%;
-    margin: 5px 5px;
+    width: 47%;
+    margin: auto;
     border: 3px solid #000000;
 }
 a {
@@ -144,7 +148,7 @@ a {
 }
 
 input[type="button"] {
-    width: 150px ;
+    width: 40% ;
 	height: 40px ;
 	font-family: Roboto, sans-serif;
     font-size: 14px;
@@ -166,7 +170,7 @@ input[type="button"]:hover {
     background-color: #00d50e;
 }
 #delete {
-    width: 305px ;
+    width: 81% ;
 	height: 25px ;
     font-size: 12px;
     margin-bottom: 5px;
@@ -203,15 +207,17 @@ input[type="button"]:hover {
     border-bottom: 6px solid #ff0000;
 }
 #result {
+    padding: auto;
+    order: 4;
     font-family: "Open Sans", sans;
     font-weight: 400;
     color: #ffffff;
     padding-top: 10px;
     padding-bottom: 10px;
-    max-width: 100%;
-    background: #032912;
+    width: 100%;
+    background-color: #032912;
     text-align: center;
-    height: auto;
+    height: max-content;
     margin: auto;
     scroll-behavior: smooth;
     span {
@@ -219,5 +225,50 @@ input[type="button"]:hover {
         display: inline-block;
         padding: 0;
         margin: 10px 10px;
+    }
+}
+
+@media screen and ((max-width: 90vh) or (max-width: 500px)) {
+    .form {
+        width: 95%;
+        margin: 5px auto;
+        min-height: auto;
+        order: 1;
+    }
+    
+    #result {
+        width: 95%;
+        order: 2;
+    }
+
+    .chat {
+        width: 95%;
+        margin: 5px auto;
+        min-height: auto;
+        order: 4;
+    }
+
+    #map {
+        width: 95%;
+        margin: 5px auto;
+        min-height: 400px;
+        order: 3;
+    }
+
+    .row {
+        height: 250px;
+    }
+
+    .basic + input {
+        width: 140px;
+    }
+
+    input[type="button"] {
+        width: 90%;
+        margin: 5px auto;
+    }
+
+    #delete {
+        width: 90%;
     }
 }

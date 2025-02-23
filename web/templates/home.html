@@ -15,44 +15,44 @@
             <h1>Travel Assistant</h1>
         </div>
         <div class="main">
-            <form method="post" class="form" id="form">
-            {% csrf_token %}
-            <div id="input_data" class="row">
-                <span id="latest" onclick="swaplatest(this.id)">
-                    <label for="input" class="basic">Start/Stop</label><input type="text" placeholder="Select location in map" id="start_stop" readonly>
+            <form method="post" class="form" id="form" data-order="1">
+                {% csrf_token %}
+                <div id="input_data" class="row">
+                    <span id="latest" onclick="swaplatest(this.id)">
+                        <label for="input" class="basic">Start/Stop</label><input type="text" placeholder="Select location in map" id="start_stop" readonly>
+                    </span>
+                </div>
+                <span >
+                    <input type="button" id="delete" value="Delete Last Location" onclick="deleteInput()">
+                    <input type="button" value="+ Add" style="display: inline-block;" onclick="addInput()">
+                    <input type="button" value="Submit" onclick="sendForm()">
+                </span>
+            </form>
+            <div id="map" data-order="2"></div>
+            <div class="chat" id="chat" data-order="3">
+                <div class="card" id="card">
+                    <div id="header">
+                    <h1>Chat Section</h1>
+                    </div>
+                    <div id="message-section">
+                        
+                        </div>
+                    <div class="input-section">
+                        <input id="chatinput" name="input" type="text" 
+                        placeholder="Type a message" />
+                        <button class="send" id="send" onclick="submit()">
+                            <div class="circle">&#9654;</div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="result" data-order="4">
+                <span>
+                    -- Route will be displayed here --
                 </span>
             </div>
-            <span >
-                <input type="button" id="delete" value="Delete Last Location" onclick="deleteInput()">
-                <input type="button" value="+ Add" style="display: inline-block;" onclick="addInput()">
-                <input type="button" value="Submit" onclick="sendForm()">
-            </span>
-        </form>
-        <div id="map"></div>
-        <div class="chat" id="chat">
-            <div class="card" id="card">
-                <div id="header">
-                  <h1>Chat Section</h1>
-                </div>
-                <div id="message-section">
-                    
-                    </div>
-                <div class="input-section">
-                    <input id="chatinput" name="input" type="text" 
-                    placeholder="Type a message" />
-                    <button class="send" id="send" onclick="submit()">
-                        <div class="circle">&#9654;</div>
-                    </button>
-                </div>
-            </div>
         </div>
-    </div>
-    <div id="result">
-        <span>
-            -- Route will be displayed here --
-        </span>
-    </div>
-    
+        
 
     
     <script src="{% static 'chats.js' %}"></script>

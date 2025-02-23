@@ -119,3 +119,10 @@ body .card .send {
   font-size: 3vh;
   
 }
+
+@media screen and ((max-width: 90vh) or (max-width: 500px)) {
+  .card #message-section {
+    height: 200px;
+    overflow: auto;
+  }
+}
